@@ -31,6 +31,7 @@ public class Fuente extends JDialog implements ActionListener{
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.setLayout(new BorderLayout());
         
+        //Agrego botones de seleccion
         panelOpciones=new JPanel (new FlowLayout());
         negrita = new JToggleButton("N");
         cursiva = new JToggleButton("C");
@@ -44,7 +45,7 @@ public class Fuente extends JDialog implements ActionListener{
             tamano.addItem(new Integer(i));
         }
         panelOpciones.add(tamano);
-        
+        //cargo las fuentes disponibles del sistema
         GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
         fuentes = environment.getAvailableFontFamilyNames();
         familia = new JComboBox(fuentes);
