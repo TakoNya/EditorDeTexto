@@ -17,8 +17,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.JOptionPane;
 
-public class Editor extends JFrame implements ActionListener{
+public class Editor extends JFrame implements ActionListener {
+
     private JTextPane area;
     private JMenuBar barraMenu;
     private JMenu archivo, edicion;
@@ -26,8 +28,9 @@ public class Editor extends JFrame implements ActionListener{
     private JScrollPane panel;
     private BorderLayout borderLayout;
     private File file;
-    
-    public Editor(){
+    private String textoAntes = "";
+
+    public Editor() {
         super("Editor de texto");
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(800, 600);
@@ -60,7 +63,7 @@ public class Editor extends JFrame implements ActionListener{
         area = new JTextPane();
         panel = new JScrollPane(area);
         this.add(panel, borderLayout.CENTER);
-        area.setSize(600,600);
+        area.setSize(600, 600);
         this.setJMenuBar(barraMenu);
         nuevo.addActionListener(this);
         abrir.addActionListener(this);
@@ -73,73 +76,137 @@ public class Editor extends JFrame implements ActionListener{
         imagen.addActionListener(this);
         this.setLocationRelativeTo(null);
         this.setVisible(true);
-        
+
     }
+
     @Override
-    public void actionPerformed(ActionEvent e){
-        if(e.getSource() == copiar){
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == copiar) {
             area.copy();
-        }else if (e.getSource() == pegar){
+        } else if (e.getSource() == pegar) {
             area.paste();
-        }else if(e.getSource() == cortar){
+        } else if (e.getSource() == cortar) {
             area.cut();
-        }else if (e.getSource() == salir){
-            this.dispose();
-        }else if (e.getSource() == abrir){
+        } else if (e.getSource() == salir) {
+            if (hayCambios()) {
+                int input = JOptionPane.showConfirmDialog(null, "¿Guardar cambios?");
+                switch (input) {
+                    case 0:
+                        guardar();
+                        salir();
+                        break;
+                    case 1:
+                        salir();
+                        break;
+                }
+            } else {
+                salir();
+            }
+            
+        } else if (e.getSource() == abrir) {
+            if (hayCambios()) {
+                int input = JOptionPane.showConfirmDialog(null, "¿Guardar cambios?");
+                switch (input) {
+                    case 0:
+                        guardar();
+                        abrir();
+                        break;
+                    case 1:
+                        abrir();
+                        break;
+                }
+            } else {
+                abrir();
+            }
+        } else if (e.getSource() == guardar) {
+            guardar();
+        } else if (e.getSource()
+                == fuente) {
+            Fuente fuente = new Fuente(this);
+        } else if (e.getSource() == imagen) {
             JFileChooser fileChooser = new JFileChooser();
             int resultado = fileChooser.showOpenDialog(this);
-            if(resultado == JFileChooser.APPROVE_OPTION){
-                file = fileChooser.getSelectedFile();
-                try{
-                    FileInputStream fileInputStream = new FileInputStream(file.getAbsolutePath());
-                    ObjectInputStream inputStream = new ObjectInputStream(fileInputStream);
-                    JTextPane textPaneAux=(JTextPane) inputStream.readObject();
-                    this.area.setStyledDocument(textPaneAux.getStyledDocument());
-                    fileInputStream.close();
-                }catch(Exception ex){
-                    ex.printStackTrace();
-                }
-            }
-        }else if (e.getSource() == guardar){
-            JFileChooser fileChooser = new JFileChooser();
-            int resultado = fileChooser.showSaveDialog(this);
-            if(resultado == JFileChooser.APPROVE_OPTION){
-                file = fileChooser.getSelectedFile();
-                try{
-                    FileOutputStream fileOutputStream = new FileOutputStream(file.getAbsolutePath());
-                    ObjectOutputStream outputStream = new ObjectOutputStream(fileOutputStream);
-                    //Esto es posible porque JTextPane implementa la clase Serializable
-                    outputStream.writeObject(area);
-                    outputStream.flush();
-                    outputStream.close();
-                }catch(Exception ex){
-                    ex.printStackTrace();
-                }
-            }
-        }else if(e.getSource() ==fuente){
-            Fuente fuente= new Fuente(this);
-        }else if(e.getSource() == imagen){
-            JFileChooser fileChooser = new JFileChooser();
-            int resultado = fileChooser.showOpenDialog(this);
-            if(resultado == JFileChooser.APPROVE_OPTION){
+            if (resultado == JFileChooser.APPROVE_OPTION) {
                 file = fileChooser.getSelectedFile();
             }
             this.area.insertIcon(new ImageIcon(file.getAbsolutePath()));
-        }else if(e.getSource() == nuevo){
-               area.setText("");
-               
-            }
+        } else if (e.getSource() == nuevo) {
+            if (hayCambios()) {
+                int input = JOptionPane.showConfirmDialog(null, "¿Guardar cambios?");
+                switch (input) {
+                    case 0:
+                        guardar();
+                        nuevo();
+                        break;
+                    case 1:
+                        nuevo();
+                        break;
+                }
+            } else {
+                nuevo();
+            } 
+        }
     }
-    public JTextPane getArea(){
+
+    public JTextPane getArea() {
         return area;
     }
-    public void setArea(JTextPane area){
+
+    public void setArea(JTextPane area) {
         this.area = area;
     }
-       
+
     public static void main(String[] args) {
         Editor principal = new Editor();
-        
+
     }
-    
+
+    private void nuevo() {
+        area.setText("");
+    }
+
+    private void abrir() {
+        JFileChooser fileChooser = new JFileChooser();
+        int resultado = fileChooser.showOpenDialog(this);
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+            file = fileChooser.getSelectedFile();
+            try {
+                FileInputStream fileInputStream = new FileInputStream(file.getAbsolutePath());
+                ObjectInputStream inputStream = new ObjectInputStream(fileInputStream);
+                JTextPane textPaneAux = (JTextPane) inputStream.readObject();
+                this.area.setStyledDocument(textPaneAux.getStyledDocument());
+                fileInputStream.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+        }
+    }
+
+    private void guardar() {
+        JFileChooser fileChooser = new JFileChooser();
+        int resultado = fileChooser.showSaveDialog(this);
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+            file = fileChooser.getSelectedFile();
+            try {
+                FileOutputStream fileOutputStream = new FileOutputStream(file.getAbsolutePath());
+                ObjectOutputStream outputStream = new ObjectOutputStream(fileOutputStream);
+                //Esto es posible porque JTextPane implementa la clase Serializable
+                outputStream.writeObject(area);
+                outputStream.flush();
+                outputStream.close();
+                boolean cambios = true;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+    private void salir() {
+        this.dispose();
+    }
+
+    private boolean hayCambios() {
+        return !textoAntes.equals(area.getText());
+    }
+
 }
