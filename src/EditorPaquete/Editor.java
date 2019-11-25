@@ -22,7 +22,7 @@ public class Editor extends JFrame implements ActionListener{
     private JTextPane area;
     private JMenuBar barraMenu;
     private JMenu archivo, edicion;
-    private JMenuItem abrir, salir, copiar, cortar, pegar, guardar, fuente, imagen;
+    private JMenuItem abrir, salir, copiar, cortar, pegar, guardar, fuente, imagen, nuevo;
     private JScrollPane panel;
     private BorderLayout borderLayout;
     private File file;
@@ -46,6 +46,8 @@ public class Editor extends JFrame implements ActionListener{
         pegar = new JMenuItem("Pegar");
         fuente = new JMenuItem("Fuente");
         imagen = new JMenuItem("Imagen");
+        nuevo = new JMenuItem("Nuevo");
+        archivo.add(nuevo);
         archivo.add(abrir);
         archivo.add(guardar);
         archivo.addSeparator();
@@ -60,6 +62,7 @@ public class Editor extends JFrame implements ActionListener{
         this.add(panel, borderLayout.CENTER);
         area.setSize(600,600);
         this.setJMenuBar(barraMenu);
+        nuevo.addActionListener(this);
         abrir.addActionListener(this);
         guardar.addActionListener(this);
         salir.addActionListener(this);
@@ -122,7 +125,10 @@ public class Editor extends JFrame implements ActionListener{
                 file = fileChooser.getSelectedFile();
             }
             this.area.insertIcon(new ImageIcon(file.getAbsolutePath()));
-        }
+        }else if(e.getSource() == nuevo){
+               area.setText("");
+               
+            }
     }
     public JTextPane getArea(){
         return area;
