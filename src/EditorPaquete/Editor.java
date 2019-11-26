@@ -29,6 +29,7 @@ public class Editor extends JFrame implements ActionListener {
     private BorderLayout borderLayout;
     private File file;
     private String textoAntes = "";
+    private String nombreArchivo = "";
 
     public Editor() {
         super("Editor de texto");
@@ -120,6 +121,7 @@ public class Editor extends JFrame implements ActionListener {
             }
         } else if (e.getSource() == guardar) {
             guardar();
+            setearTitulo();
         } else if (e.getSource()
                 == fuente) {
             Fuente fuente = new Fuente(this);
@@ -163,6 +165,8 @@ public class Editor extends JFrame implements ActionListener {
 
     private void nuevo() {
         area.setText("");
+        nombreArchivo = "";
+        setearTitulo();
     }
 
     private void abrir() {
@@ -176,6 +180,8 @@ public class Editor extends JFrame implements ActionListener {
                 JTextPane textPaneAux = (JTextPane) inputStream.readObject();
                 this.area.setStyledDocument(textPaneAux.getStyledDocument());
                 fileInputStream.close();
+               nombreArchivo = file.getName();
+               setearTitulo();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -195,7 +201,9 @@ public class Editor extends JFrame implements ActionListener {
                 outputStream.writeObject(area);
                 outputStream.flush();
                 outputStream.close();
-                boolean cambios = true;
+                nombreArchivo = file.getName();
+                setearTitulo();
+                textoAntes = area.getText();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -208,5 +216,7 @@ public class Editor extends JFrame implements ActionListener {
     private boolean hayCambios() {
         return !textoAntes.equals(area.getText());
     }
-
+    private void setearTitulo(){
+    setTitle("Editor de texto - " + nombreArchivo);
+}
 }
